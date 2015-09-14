@@ -1,0 +1,336 @@
+##### Solver #####
+
+solver_mode: GPU
+solver_type: NESTEROV
+
+base_lr: 0.01
+momentum: 0.9
+weight_decay: 0.0001
+
+lr_policy: "fixed"
+
+max_iter: 200000
+
+snapshot: 1000
+snapshot_prefix: "models/nfbia"
+
+test_iter: 100
+test_interval: 1000
+
+display: 100
+average_loss: 100
+
+##### Network #####
+
+net_param: {
+
+    name: "model"
+
+    ##### Training data #####
+
+    layer {
+      name: "images"
+      type: "Data"
+      top: "data"
+      top: "label"
+      transform_param {
+        mirror: true        
+        mean_value: 111
+        scale: 0.015
+      }
+      data_param {
+        source: "db/training"
+        backend: LMDB
+        batch_size: 256
+      }
+      include: { phase: TRAIN }
+    }
+
+    ##### Testing data #####
+
+    layer {
+      name: "images"
+      type: "Data"
+      top: "data"
+      top: "label"
+      transform_param {
+        mean_value: 111
+        scale: 0.015
+      }
+      data_param {
+        source: "db/validation"
+        backend: LMDB
+        batch_size: 256
+      }   
+      include: { phase: TEST }
+    }
+
+    ##### Layer 1 #####
+
+    layer {
+      name: "conv1"
+      type: "Convolution"
+      bottom: "data"
+      top: "conv1"
+      param {
+        lr_mult: 1
+        decay_mult: 1
+      }
+      param {
+        lr_mult: 2
+        decay_mult: 0
+      }
+      convolution_param {
+        num_output: 48
+        kernel_size: 6
+        stride: 1
+        weight_filler {
+          type: "xavier"
+        }
+        bias_filler {
+          type: "constant"
+        }
+      }
+    }
+
+    layer {
+      name: "nonlin1"
+      type: "TanH"
+      bottom: "conv1"
+      top: "conv1"
+    }
+
+    layer {
+      name: "pool1"
+      type: "Pooling"
+      bottom: "conv1"
+      top: "pool1"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }
+
+    ##### Layer 2 #####
+
+    layer {
+      name: "conv2"
+      type: "Convolution"
+      bottom: "pool1"
+      top: "conv2"
+      param {
+        lr_mult: 1
+        decay_mult: 1
+      }
+      param {
+        lr_mult: 2
+        decay_mult: 0
+      }
+      convolution_param {
+        num_output: 48
+        kernel_size: 5
+        stride: 1
+        weight_filler {
+           type: "xavier"
+        }
+        bias_filler {
+          type: "constant"
+        }
+      }
+    }
+
+    layer {
+      name: "nonlin2"
+      type: "TanH"
+      bottom: "conv2"
+      top: "conv2"	
+    }
+
+    layer {
+      name: "pool2"
+      type: "Pooling"
+      bottom: "conv2"
+      top: "pool2"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }
+
+    ##### Layer 3 #####
+
+    layer {
+      name: "conv3"
+      type: "Convolution"
+      bottom: "pool2"
+      top: "conv3"
+      param {
+        lr_mult: 1
+        decay_mult: 1
+      }
+      param {
+        lr_mult: 2
+        decay_mult: 0
+      }
+      convolution_param {
+        num_output: 48
+        kernel_size: 4
+        stride: 1
+        weight_filler {
+           type: "xavier"
+        }
+        bias_filler {
+          type: "constant"
+        }
+      }
+    }
+
+    layer {
+      name: "nonlin3"
+      type: "TanH"
+      bottom: "conv3"
+      top: "conv3"
+    }
+
+    layer {
+      name: "pool3"
+      type: "Pooling"
+      bottom: "conv3"
+      top: "pool3"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }
+
+    ##### Layer 4 #####
+
+    layer {
+      name: "conv4"
+      type: "Convolution"
+      bottom: "pool3"
+      top: "conv4"
+      param {
+        lr_mult: 1
+        decay_mult: 1
+      }
+      param {
+        lr_mult: 2
+        decay_mult: 0
+      }
+      convolution_param {
+        num_output: 48
+        kernel_size: 2
+        stride: 1
+        weight_filler {
+           type: "xavier"
+        }
+        bias_filler {
+          type: "constant"
+        }
+      }
+    }
+
+    layer {
+      name: "nonlin4"
+      type: "TanH"
+      bottom: "conv4"
+      top: "conv4"
+    }
+
+    layer {
+      name: "pool4"
+      type: "Pooling"
+      bottom: "conv4"
+      top: "pool4"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }    
+
+    ##### Fully connected 1 #####
+
+    layer {
+      name: "ip1"
+      type: "InnerProduct"
+      bottom: "pool4"
+      top: "ip1"
+      param {
+        lr_mult: 1
+        decay_mult: 1
+      }
+      param {
+        lr_mult: 2
+        decay_mult: 0
+      }
+      inner_product_param {
+        num_output: 100
+        weight_filler {
+           type: "xavier"
+        }
+        bias_filler {
+          type: "constant"
+        }
+      }
+    }
+
+    layer {
+      name: "nonlin_ip"
+      type: "TanH"
+      bottom: "ip1"
+      top: "ip1"
+    }
+
+    ##### Fully connected 2 #####
+
+    layer {
+      name: "ip2"
+      type: "InnerProduct"
+      bottom: "ip1"
+      top: "ip2"
+      param {
+        lr_mult: 1
+        decay_mult: 1
+      }
+      param {
+        lr_mult: 2
+        decay_mult: 0
+      }
+      inner_product_param {
+        num_output: 2
+        weight_filler {
+           type: "xavier"
+        }
+        bias_filler {
+          type: "constant"
+        }
+      }
+    }
+
+    ##### Loss #####
+
+    layer {
+      name: "loss"
+      type: "SoftmaxWithLoss"
+      bottom: "ip2"
+      bottom: "label"
+      top: "loss"
+    }
+
+    ##### Test accuracy #####
+
+    layer {
+      name: "accuracy"
+      type: "Accuracy"
+      bottom: "ip2"
+      bottom: "label"
+      top: "accuracy"
+      include: { phase: TEST }
+    }
+}
+

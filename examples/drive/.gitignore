@@ -1,0 +1,4 @@
+.ipynb_checkpoints/*
+models/*_fully_convolutional.caffemodel
+models/nfbia*
+db/

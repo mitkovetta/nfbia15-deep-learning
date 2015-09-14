@@ -1,0 +1,182 @@
+##### Data #####
+
+name: "model"
+input: "data"
+input_dim: 1000
+input_dim: 1
+input_dim: 65
+input_dim: 65
+
+    ##### Layer 1 #####
+
+    layer {
+      name: "conv1"
+      type: "Convolution"
+      bottom: "data"
+      top: "conv1"
+      convolution_param {
+        num_output: 48
+        kernel_size: 6
+        stride: 1
+      }
+    }
+
+    layer {
+      name: "nonlin1"
+      type: "TanH"
+      bottom: "conv1"
+      top: "conv1"
+    }
+
+    layer {
+      name: "pool1"
+      type: "Pooling"
+      bottom: "conv1"
+      top: "pool1"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }
+
+    ##### Layer 2 #####
+
+    layer {
+      name: "conv2"
+      type: "Convolution"
+      bottom: "pool1"
+      top: "conv2"
+      convolution_param {
+        num_output: 48
+        kernel_size: 5
+        stride: 1      
+      }
+    }
+
+    layer {
+      name: "nonlin2"
+      type: "TanH"
+      bottom: "conv2"
+      top: "conv2"
+    }
+
+    layer {
+      name: "pool2"
+      type: "Pooling"
+      bottom: "conv2"
+      top: "pool2"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }
+
+    ##### Layer 3 #####
+
+    layer {
+      name: "conv3"
+      type: "Convolution"
+      bottom: "pool2"
+      top: "conv3"
+      convolution_param {
+        num_output: 48
+        kernel_size: 4
+        stride: 1
+      }
+    }
+
+    layer {
+      name: "nonlin3"
+      type: "TanH"
+      bottom: "conv3"
+      top: "conv3"
+    }
+
+    layer {
+      name: "pool3"
+      type: "Pooling"
+      bottom: "conv3"
+      top: "pool3"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }
+
+    ##### Layer 4 #####
+
+    layer {
+      name: "conv4"
+      type: "Convolution"
+      bottom: "pool3"
+      top: "conv4"
+      convolution_param {
+        num_output: 48
+        kernel_size: 2
+        stride: 1
+      }
+    }
+
+    layer {
+      name: "nonlin4"
+      type: "TanH"
+      bottom: "conv4"
+      top: "conv4"
+    }
+
+    layer {
+      name: "pool4"
+      type: "Pooling"
+      bottom: "conv4"
+      top: "pool4"
+      pooling_param {
+        pool: MAX
+        kernel_size: 2
+        stride: 2
+      }
+    }    
+
+    ##### Fully connected 1 #####
+
+    layer {
+      name: "ip1"
+      type: "InnerProduct"
+      bottom: "pool4"
+      top: "ip1"
+      inner_product_param {
+        num_output: 100
+      }
+    }
+
+    layer {
+      name: "nonlin_ip"
+      type: "TanH"
+      bottom: "ip1"
+      top: "ip1"
+    }
+
+    ##### Fully connected 2 #####
+
+    layer {
+      name: "ip2"
+      type: "InnerProduct"
+      bottom: "ip1"
+      top: "ip2"
+      inner_product_param {
+        num_output: 2
+      }
+    }
+
+    ##### Probability #####
+
+    layer {
+      name: "prob"
+      type: "Softmax"
+      bottom: "ip2"
+      top: "prob"
+    }
+
+
